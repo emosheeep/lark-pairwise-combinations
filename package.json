@@ -1,0 +1,27 @@
+{
+  "name": "base-pair-combinations",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "lint": "oxlint --deny-warnings .",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "check": "bun run format:check && bun run lint && bun run typecheck && bun run test && bun run build",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@lark-base-open/js-sdk": "1.0.2"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "husky": "^9.1.7",
+    "oxfmt": "^0.59.0",
+    "oxlint": "^1.74.0",
+    "typescript": "^7.0.2",
+    "vite": "8.1.5"
+  }
+}
