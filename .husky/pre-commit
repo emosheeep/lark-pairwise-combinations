@@ -1,1 +1,5 @@
 bun run check
+git diff --quiet -- dist || {
+  echo "dist is stale; stage the rebuilt files before committing"
+  exit 1
+}
