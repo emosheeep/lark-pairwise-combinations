@@ -6,45 +6,7 @@
     <title>两两组合</title>
   </head>
   <body>
-    <main>
-      <header>
-        <div>
-          <h1>两两组合</h1>
-          <p>跨字段汇总去重，补齐 C(n,2) 组合</p>
-        </div>
-      </header>
-
-      <section>
-        <h2>数据来源</h2>
-        <label>来源数据表<select id="source-table"></select></label>
-        <fieldset>
-          <legend>来源字段（可多选）</legend>
-          <div id="source-fields" class="checks"></div>
-        </fieldset>
-      </section>
-
-      <section>
-        <h2>写入位置</h2>
-        <label>目标数据表<select id="target-table"></select></label>
-        <div class="columns">
-          <label>A 字段<select id="left-field"></select></label>
-          <label>B 字段<select id="right-field"></select></label>
-        </div>
-      </section>
-
-      <section class="summary">
-        <strong id="summary">请选择字段后预览</strong>
-        <span>只补齐缺失组合，不修改已有记录</span>
-      </section>
-
-      <footer>
-        <span id="status">正在读取表格…</span>
-        <div class="actions">
-          <button id="preview" class="secondary">预览</button>
-          <button id="generate" disabled>生成组合</button>
-        </div>
-      </footer>
-    </main>
-    <script type="module" src="/src/main.ts"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

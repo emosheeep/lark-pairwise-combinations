@@ -1,10 +1,4 @@
 :root {
-  font:
-    14px/1.5 Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
   color: #1f2329;
   background: #f5f6f7;
 }
@@ -12,140 +6,91 @@
 * {
   box-sizing: border-box;
 }
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
 body {
   margin: 0;
 }
-main {
-  max-width: 680px;
+
+.plugin-shell {
+  width: min(100%, 720px);
+  min-height: 100vh;
   margin: 0 auto;
-  padding: 20px;
+  padding: 24px 24px 88px;
 }
-header,
-.columns,
-.actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
+
+header h1 {
+  font-size: 28px;
+  line-height: 1.2;
 }
-header {
-  justify-content: space-between;
-  margin-bottom: 16px;
+
+header p {
+  margin-top: 6px;
 }
-h1 {
-  margin: 0;
-  font-size: 22px;
+
+.mantine-Card-root {
+  border-color: #dee0e3;
+  box-shadow: 0 1px 2px rgb(31 35 41 / 3%);
 }
-h2 {
-  margin: 0 0 14px;
-  font-size: 15px;
+
+.mantine-Title-root[data-order="2"] {
+  font-size: 18px;
+  line-height: 1.4;
 }
-p {
-  margin: 3px 0 0;
-  color: #646a73;
-}
-section {
-  margin-bottom: 12px;
-  padding: 16px;
-  border: 1px solid #dee0e3;
-  border-radius: 10px;
-  background: white;
-}
-label {
-  display: grid;
-  gap: 6px;
-  flex: 1;
+
+.mantine-InputWrapper-label {
+  margin-bottom: 7px;
   color: #4e5969;
+  font-weight: 500;
 }
-select {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #c9cdd4;
-  border-radius: 6px;
-  background: white;
-  color: #1f2329;
+
+.mantine-Input-input {
+  min-height: 40px;
 }
-fieldset {
-  margin: 14px 0 0;
-  padding: 0;
-  border: 0;
+
+.mantine-Alert-root {
+  border: 1px solid #b7ceff;
 }
-legend {
-  margin-bottom: 8px;
-  color: #4e5969;
-}
-.checks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.checks label {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  padding: 6px 10px;
-  border-radius: 6px;
-  background: #f2f3f5;
-  color: #1f2329;
-}
-.checks input {
-  margin: 0;
-}
-.summary {
-  display: grid;
-  gap: 4px;
-  border-color: #bbd2ff;
-  background: #f0f5ff;
-}
-.summary span {
-  color: #646a73;
-  font-size: 12px;
-}
-#status {
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: #e8ffea;
-  color: #237b2c;
-  font-size: 12px;
-}
-#status.error {
-  background: #fff0f0;
-  color: #c1292e;
-}
+
 footer {
-  position: sticky;
+  position: fixed;
+  right: 0;
   bottom: 0;
+  left: 0;
+  z-index: 10;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 10px 0;
-  background: #f5f6f7;
-}
-button {
-  padding: 9px 18px;
-  border: 0;
-  border-radius: 6px;
-  background: #3370ff;
-  color: white;
-  cursor: pointer;
-}
-button.secondary {
-  border: 1px solid #c9cdd4;
-  background: white;
-  color: #1f2329;
-}
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
+  width: min(100%, 720px);
+  margin: 0 auto;
+  padding: 12px 24px;
+  border-top: 1px solid #ebecef;
+  background: rgb(245 246 247 / 96%);
+  backdrop-filter: blur(8px);
 }
 
 @media (max-width: 520px) {
-  main {
-    padding: 12px;
+  .plugin-shell {
+    padding: 16px 12px 82px;
   }
-  header,
-  .columns {
-    align-items: stretch;
-    flex-direction: column;
+
+  header h1 {
+    font-size: 24px;
+  }
+
+  footer {
+    padding: 10px 12px;
+  }
+
+  footer .mantine-Badge-root {
+    max-width: 42%;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
