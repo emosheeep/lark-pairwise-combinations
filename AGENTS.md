@@ -9,6 +9,7 @@ value pairs. Keep table and field mappings configurable; do not couple behavior 
 
 - Use TypeScript for application and test code.
 - Use Bun for dependency management and scripts.
+- Use `--registry=https://registry.npmjs.org` when installing or changing dependencies.
 - Build UI with React and shadcn/ui: https://ui.shadcn.com/llms.txt
 - Run `bun run check` before committing.
 - Format with oxfmt and lint with oxlint; do not add parallel formatter or linter stacks.

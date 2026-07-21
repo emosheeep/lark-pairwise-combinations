@@ -15,7 +15,7 @@
 ## 开发
 
 ```bash
-bun install
+bun install --registry=https://registry.npmjs.org
 bun run check
 bun run dev
 ```
