@@ -2,7 +2,7 @@
 
 飞书多维表格边栏插件：跨字段汇总数据、去重，并补齐缺失的无序两两组合。
 
-![人员两两组合插件界面](docs/plugin-preview.png)
+![两两组合插件界面](docs/plugin-preview.png)
 
 ## 能力
 

@@ -1,5 +1,5 @@
 {
-  "name": "base-pair-combinations",
+  "name": "lark-pairwise-combinations",
   "private": true,
   "type": "module",
   "scripts": {
