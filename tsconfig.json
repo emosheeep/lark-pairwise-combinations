@@ -9,8 +9,9 @@
     "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
     "strict": true,
+    "paths": { "@/*": ["./src/*"] },
     "target": "ES2022",
-    "types": ["bun"]
+    "types": ["bun", "node"]
   },
   "include": ["src"]
 }

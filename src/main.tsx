@@ -1,19 +1,3 @@
-import "@mantine/core/styles.css";
-import {
-  Alert,
-  Badge,
-  Button,
-  Card,
-  Chip,
-  Group,
-  MantineProvider,
-  Select,
-  SimpleGrid,
-  Skeleton,
-  Stack,
-  Text,
-  Title,
-} from "@mantine/core";
 import {
   bitable,
   FieldType,
@@ -31,6 +15,20 @@ import {
 import { createRoot } from "react-dom/client";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { missingPairs, pairKey, uniqueMembers, type Member, type NormalizedMember } from "./pairs";
 import "./style.css";
 
@@ -457,164 +455,183 @@ function App(): React.JSX.Element {
     };
   }, [scheduleRefresh]);
 
-  const tableOptions = tables.map((table) => ({ value: table.id, label: table.name }));
-  const targetFieldOptions = targetFields.map((field) => ({ value: field.id, label: field.name }));
   const controlsDisabled = busy !== null;
 
   return (
     <main className="plugin-shell">
-      <Stack gap="lg">
-        <header>
-          <Title order={1}>两两组合</Title>
-          <Text c="dimmed">跨字段汇总去重，补齐 C(n,2) 组合</Text>
+      <div className="space-y-5">
+        <header className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight">两两组合</h1>
+          <p className="text-sm text-muted-foreground">跨字段汇总去重，补齐 C(n,2) 组合</p>
         </header>
 
-        <Card withBorder radius="md" padding="lg">
-          <Stack gap="md">
-            <Title order={2}>数据来源</Title>
-            <Select
-              label="来源数据表"
-              data={tableOptions}
-              value={sourceTableId || null}
-              allowDeselect={false}
-              disabled={busy === "init"}
-              onChange={(value) => {
-                if (!value) return;
-                setSourceTableId(value);
-                configRef.current = { ...configRef.current, sourceTableId: value };
-                void run(async () => loadSourceFields(value, false));
-              }}
-            />
-            <Stack gap={8}>
-              <Text size="sm" fw={500}>
-                来源字段（可多选）
-              </Text>
+        <Card>
+          <CardHeader>
+            <CardTitle>数据来源</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>来源数据表</Label>
+              <Select
+                value={sourceTableId}
+                disabled={busy === "init"}
+                onValueChange={(value) => {
+                  setSourceTableId(value);
+                  configRef.current = { ...configRef.current, sourceTableId: value };
+                  void run(async () => loadSourceFields(value, false));
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="选择数据表" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tables.map((table) => (
+                    <SelectItem key={table.id} value={table.id}>
+                      {table.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>来源字段（可多选）</Label>
               {sourceFieldsLoading ? (
-                <Skeleton height={32} radius="md" />
+                <Skeleton className="h-9 w-full" />
               ) : sourceFields.length ? (
-                <Chip.Group
-                  multiple
-                  value={sourceFieldIds}
-                  onChange={(values) => {
-                    setSourceFieldIds(values);
-                    configRef.current = { ...configRef.current, sourceFieldIds: values };
-                    invalidatePreview();
-                  }}
-                >
-                  <Group gap="xs">
-                    {sourceFields.map((field) => (
-                      <Chip key={field.id} value={field.id} size="sm">
+                <div className="flex flex-wrap gap-2">
+                  {sourceFields.map((field) => {
+                    const checked = sourceFieldIds.includes(field.id);
+                    return (
+                      <Label
+                        key={field.id}
+                        className="flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 font-normal hover:bg-accent"
+                      >
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(next) => {
+                            const values = next
+                              ? [...sourceFieldIds, field.id]
+                              : sourceFieldIds.filter((id) => id !== field.id);
+                            setSourceFieldIds(values);
+                            configRef.current = {
+                              ...configRef.current,
+                              sourceFieldIds: values,
+                            };
+                            invalidatePreview();
+                          }}
+                        />
                         {field.name}
-                      </Chip>
-                    ))}
-                  </Group>
-                </Chip.Group>
+                      </Label>
+                    );
+                  })}
+                </div>
               ) : (
-                <Text size="sm" c="dimmed">
-                  当前数据表没有支持的字段
-                </Text>
+                <p className="text-sm text-muted-foreground">当前数据表没有支持的字段</p>
               )}
-            </Stack>
-          </Stack>
+            </div>
+          </CardContent>
         </Card>
 
-        <Card withBorder radius="md" padding="lg">
-          <Stack gap="md">
-            <Title order={2}>写入位置</Title>
-            <Select
-              label="目标数据表"
-              data={tableOptions}
-              value={targetTableId || null}
-              allowDeselect={false}
-              disabled={busy === "init"}
-              onChange={(value) => {
-                if (!value) return;
-                setTargetTableId(value);
-                configRef.current = { ...configRef.current, targetTableId: value };
-                void run(async () => loadTargetFields(value, false));
-              }}
-            />
+        <Card>
+          <CardHeader>
+            <CardTitle>写入位置</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>目标数据表</Label>
+              <Select
+                value={targetTableId}
+                disabled={busy === "init"}
+                onValueChange={(value) => {
+                  setTargetTableId(value);
+                  configRef.current = { ...configRef.current, targetTableId: value };
+                  void run(async () => loadTargetFields(value, false));
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="选择数据表" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tables.map((table) => (
+                    <SelectItem key={table.id} value={table.id}>
+                      {table.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             {targetFieldsLoading ? (
-              <Skeleton height={58} radius="md" />
+              <Skeleton className="h-16 w-full" />
             ) : (
-              <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="md">
-                <Select
-                  label="A 字段"
-                  data={targetFieldOptions}
-                  value={leftFieldId || null}
-                  allowDeselect={false}
-                  onChange={(value) => {
-                    const next = value ?? "";
-                    setLeftFieldId(next);
-                    configRef.current = { ...configRef.current, leftFieldId: next };
-                    invalidatePreview();
-                  }}
-                />
-                <Select
-                  label="B 字段"
-                  data={targetFieldOptions}
-                  value={rightFieldId || null}
-                  allowDeselect={false}
-                  onChange={(value) => {
-                    const next = value ?? "";
-                    setRightFieldId(next);
-                    configRef.current = { ...configRef.current, rightFieldId: next };
-                    invalidatePreview();
-                  }}
-                />
-              </SimpleGrid>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {[
+                  { label: "A 字段", value: leftFieldId, side: "left" },
+                  { label: "B 字段", value: rightFieldId, side: "right" },
+                ].map(({ label, value, side }) => (
+                  <div key={side} className="space-y-2">
+                    <Label>{label}</Label>
+                    <Select
+                      value={value}
+                      onValueChange={(next) => {
+                        if (side === "left") {
+                          setLeftFieldId(next);
+                          configRef.current = { ...configRef.current, leftFieldId: next };
+                        } else {
+                          setRightFieldId(next);
+                          configRef.current = { ...configRef.current, rightFieldId: next };
+                        }
+                        invalidatePreview();
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="选择字段" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {targetFields.map((field) => (
+                          <SelectItem key={field.id} value={field.id}>
+                            {field.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+              </div>
             )}
-          </Stack>
+          </CardContent>
         </Card>
 
-        <Alert color="blue" variant="light" radius="md">
-          <Text fw={600}>{summary}</Text>
-          <Text size="sm" c="dimmed" mt={4}>
-            只补齐缺失组合，不修改已有记录
-          </Text>
+        <Alert className="border-blue-200 bg-blue-50 text-blue-950">
+          <AlertTitle>{summary}</AlertTitle>
+          <AlertDescription>只补齐缺失组合，不修改已有记录</AlertDescription>
         </Alert>
-      </Stack>
+      </div>
 
-      <footer>
+      <footer className="plugin-footer">
         <Badge
-          variant="light"
-          color={status.error ? "red" : busy ? "blue" : "green"}
-          size="lg"
-          radius="xl"
+          variant={status.error ? "destructive" : "secondary"}
+          className="max-w-[45%] truncate"
         >
           {status.message}
         </Badge>
-        <Group gap="sm" wrap="nowrap">
+        <div className="flex shrink-0 gap-2">
           <Button
-            variant="default"
-            loading={busy === "preview"}
+            variant="outline"
             disabled={controlsDisabled && busy !== "preview"}
             onClick={() => void run(calculatePreview)}
           >
-            预览
+            {busy === "preview" ? "预览中…" : "预览"}
           </Button>
           <Button
-            loading={busy === "generate"}
             disabled={controlsDisabled || !previewState || previewState.pairs.length === 0}
             onClick={() => void run(generate)}
           >
-            生成组合
+            {busy === "generate" ? "生成中…" : "生成组合"}
           </Button>
-        </Group>
+        </div>
       </footer>
     </main>
   );
 }
 
-createRoot(document.getElementById("root")!).render(
-  <MantineProvider
-    defaultColorScheme="light"
-    theme={{
-      primaryColor: "blue",
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-      defaultRadius: "md",
-    }}
-  >
-    <App />
-  </MantineProvider>,
-);
+createRoot(document.getElementById("root")!).render(<App />);
