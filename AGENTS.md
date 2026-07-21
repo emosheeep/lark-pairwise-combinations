@@ -9,8 +9,7 @@ value pairs. Keep table and field mappings configurable; do not couple behavior 
 
 - Use TypeScript for application and test code.
 - Use Bun for dependency management and scripts.
-- Build UI with React and Mantine: https://mantine.dev/llms-full.txt
-- Additional UI reference: https://ui.shadcn.com/llms.txt
+- Build UI with React and shadcn/ui: https://ui.shadcn.com/llms.txt
 - Run `bun run check` before committing.
 - Format with oxfmt and lint with oxlint; do not add parallel formatter or linter stacks.
 - Preserve idempotency: repeated runs only add missing pairs and never rewrite existing records.

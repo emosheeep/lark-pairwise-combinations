@@ -1,5 +1,7 @@
 bun run check
-git diff --quiet -- dist || {
-  echo "dist is stale; stage the rebuilt files before committing"
+
+if ! git diff --quiet -- src public dist package.json bun.lock index.html components.json tsconfig.json vite.config.ts ||
+  test -n "$(git ls-files --others --exclude-standard -- src public dist components.json)"; then
+  echo "source or dist has unstaged files; stage the complete rebuilt change before committing"
   exit 1
-}
+fi
