@@ -45,7 +45,11 @@ const state: {
   tables: ITableMeta[];
   fields: Map<string, IFieldMeta[]>;
   preview: Preview | null;
-} = { tables: [], fields: new Map(), preview: null };
+  unwatch: (() => void)[];
+} = { tables: [], fields: new Map(), preview: null, unwatch: [] };
+
+let refreshTimer: number | undefined;
+let needsFieldRefresh = false;
 
 function element<T extends HTMLElement>(id: string): T {
   const found = document.getElementById(id);
@@ -120,7 +124,14 @@ async function loadFields(tableId: string): Promise<IFieldMeta[]> {
   return state.fields.get(tableId) ?? [];
 }
 
-async function renderSourceFields(): Promise<void> {
+async function renderSourceFields(preserveSelection = true): Promise<void> {
+  const selected = preserveSelection
+    ? new Set(
+        [...document.querySelectorAll<HTMLInputElement>("#source-fields input:checked")].map(
+          (input) => input.value,
+        ),
+      )
+    : new Set<string>();
   const fields = (await loadFields(select("source-table").value)).filter((field) =>
     SOURCE_TYPES.has(field.type),
   );
@@ -130,7 +141,9 @@ async function renderSourceFields(): Promise<void> {
       const input = document.createElement("input");
       input.type = "checkbox";
       input.value = field.id;
-      input.checked = ["付款人", "消费人"].includes(field.name);
+      input.checked = selected.size
+        ? selected.has(field.id)
+        : ["付款人", "消费人"].includes(field.name);
       label.append(input, field.name);
       return label;
     }),
@@ -138,13 +151,22 @@ async function renderSourceFields(): Promise<void> {
   invalidatePreview();
 }
 
-async function renderTargetFields(): Promise<void> {
+async function renderTargetFields(preserveSelection = true): Promise<void> {
+  const previous: [string, string] = preserveSelection
+    ? [select("left-field").value, select("right-field").value]
+    : ["", ""];
   const fields = (await loadFields(select("target-table").value)).filter((field) =>
     TARGET_TYPES.has(field.type),
   );
   for (const id of ["left-field", "right-field"]) select(id).replaceChildren(...fields.map(option));
-  selectByName(select("left-field"), "甲方");
-  selectByName(select("right-field"), "乙方");
+  for (const [id, value, fallback] of [
+    ["left-field", previous[0], "甲方"],
+    ["right-field", previous[1], "乙方"],
+  ] as const) {
+    const target = select(id);
+    if ([...target.options].some((item) => item.value === value)) target.value = value;
+    else selectByName(target, fallback);
+  }
   invalidatePreview();
 }
 
@@ -158,12 +180,12 @@ function readConfig(): PluginConfig {
   const sourceFieldIds = [
     ...document.querySelectorAll<HTMLInputElement>("#source-fields input:checked"),
   ].map((input) => input.value);
-  if (!sourceFieldIds.length) throw new Error("请至少选择一个成员字段");
+  if (!sourceFieldIds.length) throw new Error("请至少选择一个来源字段");
   if (!select("left-field").value || !select("right-field").value) {
-    throw new Error("目标表需要两个可写的成员字段");
+    throw new Error("目标表需要两个可写字段");
   }
   if (select("left-field").value === select("right-field").value) {
-    throw new Error("成员 A 和成员 B 不能写入同一个字段");
+    throw new Error("A 和 B 不能写入同一个字段");
   }
 
   return {
@@ -200,7 +222,7 @@ async function preview(): Promise<void> {
   const leftMeta = targetMeta.get(config.leftFieldId);
   const rightMeta = targetMeta.get(config.rightFieldId);
   if (!leftMeta || !rightMeta) throw new Error("找不到目标字段，请重新选择");
-  if (leftMeta.type !== rightMeta.type) throw new Error("成员 A 和成员 B 的字段类型必须一致");
+  if (leftMeta.type !== rightMeta.type) throw new Error("A 和 B 的字段类型必须一致");
   if (!isTargetType(leftMeta.type)) throw new Error("目标字段类型不受支持");
   if (leftMeta.type === FieldType.User && members.some((member) => !member.user?.id)) {
     throw new Error("写入人员字段时，所有来源字段也必须是人员字段");
@@ -219,7 +241,7 @@ async function preview(): Promise<void> {
   state.preview = { ...config, members, pairs, targetTable, targetType: leftMeta.type };
   const total = (members.length * (members.length - 1)) / 2;
   element("summary").textContent =
-    `识别 ${members.length} 人，共 ${total} 组；已有 ${total - pairs.length} 组，本次新增 ${pairs.length} 组`;
+    `识别 ${members.length} 个值，共 ${total} 组；已有 ${total - pairs.length} 组，本次新增 ${pairs.length} 组`;
   element<HTMLButtonElement>("generate").disabled = pairs.length === 0;
   setStatus("预览完成");
 }
@@ -287,7 +309,49 @@ async function run(action: () => Promise<void>): Promise<void> {
   try {
     await action();
   } catch (error) {
-    setStatus(error instanceof Error ? error.message : "操作失败", true);
+    setStatus(
+      error instanceof AggregateError
+        ? "读取表格失败，请稍后重试"
+        : error instanceof Error
+          ? error.message
+          : "操作失败",
+      true,
+    );
+  }
+}
+
+function scheduleRefresh(refreshFields = false): void {
+  needsFieldRefresh ||= refreshFields;
+  window.clearTimeout(refreshTimer);
+  refreshTimer = window.setTimeout(() => {
+    void run(async () => {
+      if (needsFieldRefresh) {
+        needsFieldRefresh = false;
+        state.fields.clear();
+        await renderSourceFields();
+        await renderTargetFields();
+      }
+      if (document.querySelector("#source-fields input:checked")) await preview();
+    });
+  }, 250);
+}
+
+async function watchSelectedTables(): Promise<void> {
+  for (const unwatch of state.unwatch.splice(0)) unwatch();
+  const ids = new Set([select("source-table").value, select("target-table").value]);
+  for (const id of ids) {
+    // oxlint-disable-next-line no-await-in-loop -- SDK event registration is safer sequentially.
+    const table = await bitable.base.getTableById(id);
+    const refreshRecords = (): void => scheduleRefresh();
+    const refreshFields = (): void => scheduleRefresh(true);
+    state.unwatch.push(
+      table.onRecordAdd(refreshRecords),
+      table.onRecordDelete(refreshRecords),
+      table.onRecordModify(refreshRecords),
+      table.onFieldAdd(refreshFields),
+      table.onFieldDelete(refreshFields),
+      table.onFieldModify(refreshFields),
+    );
   }
 }
 
@@ -298,14 +362,30 @@ async function init(): Promise<void> {
   }
   selectByName(select("source-table"), "旅行消费");
   selectByName(select("target-table"), "差额计算");
-  await Promise.all([renderSourceFields(), renderTargetFields()]);
-  select("source-table").addEventListener("change", () => run(renderSourceFields));
-  select("target-table").addEventListener("change", () => run(renderTargetFields));
+  await renderSourceFields();
+  await renderTargetFields();
+  await watchSelectedTables();
+  select("source-table").addEventListener("change", () =>
+    run(async () => {
+      await renderSourceFields(false);
+      await watchSelectedTables();
+    }),
+  );
+  select("target-table").addEventListener("change", () =>
+    run(async () => {
+      await renderTargetFields(false);
+      await watchSelectedTables();
+    }),
+  );
   element("source-fields").addEventListener("change", invalidatePreview);
   select("left-field").addEventListener("change", invalidatePreview);
   select("right-field").addEventListener("change", invalidatePreview);
   element("preview").addEventListener("click", () => run(preview));
   element("generate").addEventListener("click", () => run(generate));
+  window.addEventListener("focus", () => scheduleRefresh(true));
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) scheduleRefresh(true);
+  });
   setStatus("已自动识别常用字段");
   await run(preview);
 }

@@ -21,8 +21,8 @@ main {
   padding: 20px;
 }
 header,
-footer,
-.columns {
+.columns,
+.actions {
   display: flex;
   gap: 12px;
   align-items: center;
@@ -112,7 +112,14 @@ legend {
   color: #c1292e;
 }
 footer {
-  justify-content: flex-end;
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  background: #f5f6f7;
 }
 button {
   padding: 9px 18px;
@@ -140,8 +147,5 @@ button:disabled {
   .columns {
     align-items: stretch;
     flex-direction: column;
-  }
-  #status {
-    align-self: flex-start;
   }
 }

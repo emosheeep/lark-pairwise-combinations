@@ -3,7 +3,7 @@
 ## Scope
 
 This repository contains a generic Feishu Base sidebar plugin that generates missing unordered
-member pairs. Keep table and field mappings configurable; do not couple behavior to a single Base.
+value pairs. Keep table and field mappings configurable; do not couple behavior to people or a single Base.
 
 ## Development
 
