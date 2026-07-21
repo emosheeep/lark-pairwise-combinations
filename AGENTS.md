@@ -17,5 +17,5 @@ value pairs. Keep table and field mappings configurable; do not couple behavior 
 ## Changes
 
 - Add or update tests when pair-generation semantics change.
-- Do not commit generated `dist/` output to `main`; deployment output belongs on `gh-pages`.
+- Keep generated `dist/` output committed and synchronized with source changes; Pages deploys it from `main`.
 - Keep user-facing copy concise and in Simplified Chinese.
