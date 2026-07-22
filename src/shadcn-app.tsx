@@ -476,240 +476,243 @@ export function ShadcnApp(): React.JSX.Element {
         </Badge>
       </header>
 
-      <section className="flat-section" aria-labelledby="source-heading">
-        <div className="flat-section-header">
-          <h2 id="source-heading">数据来源</h2>
-          <span>01</span>
-        </div>
-        <div className="property-list">
-          <div className="property-row">
-            <div className="field-copy">
-              <Label htmlFor="source-table">
-                <Database aria-hidden="true" />
-                来源数据表
-              </Label>
-              <p>从这张表读取需要组合的值</p>
-            </div>
-            <Select
-              value={sourceTableId}
-              disabled={controlsDisabled}
-              onValueChange={changeSourceTable}
-            >
-              <SelectTrigger id="source-table" className="w-full">
-                <SelectValue placeholder="请选择来源数据表" />
-              </SelectTrigger>
-              <SelectContent>
-                {tables.map((table) => (
-                  <SelectItem key={table.id} value={table.id}>
-                    {table.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <div className="flat-content">
+        <section className="flat-section" aria-labelledby="source-heading">
+          <div className="flat-section-header">
+            <h2 id="source-heading">数据来源</h2>
+            <span>01</span>
           </div>
-          <div className="property-row">
-            <div className="field-copy">
-              <div className="field-label" id="source-fields-label">
-                <ListFilter aria-hidden="true" />
-                来源字段
+          <div className="property-list">
+            <div className="property-row">
+              <div className="field-copy">
+                <Label htmlFor="source-table">
+                  <Database aria-hidden="true" />
+                  来源数据表
+                </Label>
+                <p>从这张表读取需要组合的值</p>
               </div>
-              <p>可选择多个字段，所有值会合并去重</p>
-            </div>
-            {sourceFieldsLoading ? (
-              <div className="control-placeholder">正在读取字段…</div>
-            ) : sourceFields.length ? (
-              <div
-                className="source-field-options"
-                role="group"
-                aria-labelledby="source-fields-label"
+              <Select
+                value={sourceTableId}
+                disabled={controlsDisabled}
+                onValueChange={changeSourceTable}
               >
-                {sourceFields.map((field) => (
-                  <Label
-                    className="source-field-option"
-                    key={field.id}
-                    htmlFor={`source-field-${field.id}`}
-                  >
-                    <Checkbox
-                      id={`source-field-${field.id}`}
-                      checked={sourceFieldIds.includes(field.id)}
-                      disabled={controlsDisabled}
-                      onCheckedChange={(value) => toggleSourceField(field.id, value === true)}
-                    />
-                    {field.name}
-                  </Label>
-                ))}
-              </div>
-            ) : (
-              <div className="control-placeholder">当前数据表没有支持的字段</div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      <Separator />
-
-      <section className="flat-section" aria-labelledby="target-heading">
-        <div className="flat-section-header">
-          <h2 id="target-heading">写入位置</h2>
-          <span>02</span>
-        </div>
-        <div className="property-list">
-          <div className="property-row">
-            <div className="field-copy">
-              <Label htmlFor="target-table">
-                <Inbox aria-hidden="true" />
-                目标数据表
-              </Label>
-              <p>缺失的组合将新增到这张表</p>
+                <SelectTrigger id="source-table" className="w-full">
+                  <SelectValue placeholder="请选择来源数据表" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tables.map((table) => (
+                    <SelectItem key={table.id} value={table.id}>
+                      {table.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <Select
-              value={targetTableId}
-              disabled={controlsDisabled}
-              onValueChange={changeTargetTable}
-            >
-              <SelectTrigger id="target-table" className="w-full">
-                <SelectValue placeholder="请选择目标数据表" />
-              </SelectTrigger>
-              <SelectContent>
-                {tables.map((table) => (
-                  <SelectItem key={table.id} value={table.id}>
-                    {table.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {targetFieldsLoading ? (
-            <div className="control-placeholder">正在读取目标字段…</div>
-          ) : (
-            <>
-              <div className="property-row">
-                <div className="field-copy">
-                  <Label htmlFor="left-field">
-                    <Columns2 aria-hidden="true" />A 字段
-                  </Label>
-                  <p>与 B 字段互斥，冲突时自动交换</p>
+            <div className="property-row">
+              <div className="field-copy">
+                <div className="field-label" id="source-fields-label">
+                  <ListFilter aria-hidden="true" />
+                  来源字段
                 </div>
-                <Select
-                  value={leftFieldId}
-                  disabled={controlsDisabled || targetFields.length < 2}
-                  onValueChange={updateLeftField}
-                >
-                  <SelectTrigger id="left-field" className="w-full">
-                    <SelectValue placeholder="请选择 A 字段" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {targetFields.map((field) => (
-                      <SelectItem key={field.id} value={field.id}>
-                        {field.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <p>可选择多个字段，所有值会合并去重</p>
               </div>
-              <div className="property-row">
-                <div className="field-copy">
-                  <Label htmlFor="right-field">
-                    <Columns2 aria-hidden="true" />B 字段
-                  </Label>
-                  <p>与 A 字段互斥，冲突时自动交换</p>
-                </div>
-                <Select
-                  value={rightFieldId}
-                  disabled={controlsDisabled || targetFields.length < 2}
-                  onValueChange={updateRightField}
+              {sourceFieldsLoading ? (
+                <div className="control-placeholder">正在读取字段…</div>
+              ) : sourceFields.length ? (
+                <div
+                  className="source-field-options"
+                  role="group"
+                  aria-labelledby="source-fields-label"
                 >
-                  <SelectTrigger id="right-field" className="w-full">
-                    <SelectValue placeholder="请选择 B 字段" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {targetFields.map((field) => (
-                      <SelectItem key={field.id} value={field.id}>
-                        {field.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
-          )}
-        </div>
-      </section>
-
-      <section
-        className="pair-preview"
-        aria-labelledby="pair-preview-heading"
-        aria-busy={calculating}
-      >
-        <div className="pair-preview-header">
-          <div>
-            <h2 id="pair-preview-heading">组合结果</h2>
-            <p className="pair-count">
-              <GitBranch size={15} aria-hidden="true" />
-              <strong>{preview?.members.length ?? 0} 个值</strong>
-              <span>→</span>
-              <strong>{preview?.totalPairs ?? 0} 组</strong>
-              <span>·</span>
-              <span>按 A 字段分组</span>
-            </p>
-          </div>
-          <Badge variant={newPairCount ? "outline" : "secondary"}>
-            {calculating ? "正在计算" : newPairCount ? `待新增 ${newPairCount} 组` : "已补齐"}
-          </Badge>
-        </div>
-        {pairRows.length ? (
-          <div className="pair-preview-table">
-            <table>
-              <caption className="sr-only">按 A 字段分组的两两组合预览</caption>
-              <thead>
-                <tr>
-                  <th scope="col">{fieldNames.get(leftFieldId) ?? "A 字段"}</th>
-                  <th scope="col">{fieldNames.get(rightFieldId) ?? "B 字段"}</th>
-                  <th scope="col" className="pair-status-column">
-                    状态
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {displayedPairRows.map((pair, index) => {
-                  const isGroupStart = displayedPairRows[index - 1]?.left.key !== pair.left.key;
-                  return (
-                    <tr
-                      key={`${pair.left.key}-${pair.right.key}`}
-                      className={pair.isNew ? "is-new" : undefined}
+                  {sourceFields.map((field) => (
+                    <Label
+                      className="source-field-option"
+                      key={field.id}
+                      htmlFor={`source-field-${field.id}`}
                     >
-                      {isGroupStart && (
-                        <th scope="rowgroup" rowSpan={pair.groupSize} className="pair-a-group">
-                          {pair.left.label}
-                        </th>
-                      )}
-                      <td>{pair.right.label}</td>
-                      <td className="pair-status-column">
-                        <span className={`pair-status ${pair.isNew ? "is-new" : "is-existing"}`}>
-                          {pair.isNew ? "新增" : "已有"}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            {hiddenPairCount > 0 && (
-              <p className="pair-preview-limit">
-                仅展示前 {PREVIEW_ROW_LIMIT} 组，另有 {hiddenPairCount} 组；生成时会写入全部缺失组合
-              </p>
+                      <Checkbox
+                        id={`source-field-${field.id}`}
+                        checked={sourceFieldIds.includes(field.id)}
+                        disabled={controlsDisabled}
+                        onCheckedChange={(value) => toggleSourceField(field.id, value === true)}
+                      />
+                      {field.name}
+                    </Label>
+                  ))}
+                </div>
+              ) : (
+                <div className="control-placeholder">当前数据表没有支持的字段</div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <Separator />
+
+        <section className="flat-section" aria-labelledby="target-heading">
+          <div className="flat-section-header">
+            <h2 id="target-heading">写入位置</h2>
+            <span>02</span>
+          </div>
+          <div className="property-list">
+            <div className="property-row">
+              <div className="field-copy">
+                <Label htmlFor="target-table">
+                  <Inbox aria-hidden="true" />
+                  目标数据表
+                </Label>
+                <p>缺失的组合将新增到这张表</p>
+              </div>
+              <Select
+                value={targetTableId}
+                disabled={controlsDisabled}
+                onValueChange={changeTargetTable}
+              >
+                <SelectTrigger id="target-table" className="w-full">
+                  <SelectValue placeholder="请选择目标数据表" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tables.map((table) => (
+                    <SelectItem key={table.id} value={table.id}>
+                      {table.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {targetFieldsLoading ? (
+              <div className="control-placeholder">正在读取目标字段…</div>
+            ) : (
+              <>
+                <div className="property-row">
+                  <div className="field-copy">
+                    <Label htmlFor="left-field">
+                      <Columns2 aria-hidden="true" />A 字段
+                    </Label>
+                    <p>与 B 字段互斥，冲突时自动交换</p>
+                  </div>
+                  <Select
+                    value={leftFieldId}
+                    disabled={controlsDisabled || targetFields.length < 2}
+                    onValueChange={updateLeftField}
+                  >
+                    <SelectTrigger id="left-field" className="w-full">
+                      <SelectValue placeholder="请选择 A 字段" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {targetFields.map((field) => (
+                        <SelectItem key={field.id} value={field.id}>
+                          {field.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="property-row">
+                  <div className="field-copy">
+                    <Label htmlFor="right-field">
+                      <Columns2 aria-hidden="true" />B 字段
+                    </Label>
+                    <p>与 A 字段互斥，冲突时自动交换</p>
+                  </div>
+                  <Select
+                    value={rightFieldId}
+                    disabled={controlsDisabled || targetFields.length < 2}
+                    onValueChange={updateRightField}
+                  >
+                    <SelectTrigger id="right-field" className="w-full">
+                      <SelectValue placeholder="请选择 B 字段" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {targetFields.map((field) => (
+                        <SelectItem key={field.id} value={field.id}>
+                          {field.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
             )}
           </div>
-        ) : (
-          <p className="pair-preview-empty">
-            {calculating
-              ? "正在汇总并去重…"
-              : preview
-                ? "至少需要 2 个不同的值"
-                : "完成字段设置后会在这里实时显示组合"}
-          </p>
-        )}
-      </section>
+        </section>
+
+        <section
+          className="pair-preview"
+          aria-labelledby="pair-preview-heading"
+          aria-busy={calculating}
+        >
+          <div className="pair-preview-header">
+            <div>
+              <h2 id="pair-preview-heading">组合结果</h2>
+              <p className="pair-count">
+                <GitBranch size={15} aria-hidden="true" />
+                <strong>{preview?.members.length ?? 0} 个值</strong>
+                <span>→</span>
+                <strong>{preview?.totalPairs ?? 0} 组</strong>
+                <span>·</span>
+                <span>按 A 字段分组</span>
+              </p>
+            </div>
+            <Badge variant={newPairCount ? "outline" : "secondary"}>
+              {calculating ? "正在计算" : newPairCount ? `待新增 ${newPairCount} 组` : "已补齐"}
+            </Badge>
+          </div>
+          {pairRows.length ? (
+            <div className="pair-preview-table">
+              <table>
+                <caption className="sr-only">按 A 字段分组的两两组合预览</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{fieldNames.get(leftFieldId) ?? "A 字段"}</th>
+                    <th scope="col">{fieldNames.get(rightFieldId) ?? "B 字段"}</th>
+                    <th scope="col" className="pair-status-column">
+                      状态
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayedPairRows.map((pair, index) => {
+                    const isGroupStart = displayedPairRows[index - 1]?.left.key !== pair.left.key;
+                    return (
+                      <tr
+                        key={`${pair.left.key}-${pair.right.key}`}
+                        className={pair.isNew ? "is-new" : undefined}
+                      >
+                        {isGroupStart && (
+                          <th scope="rowgroup" rowSpan={pair.groupSize} className="pair-a-group">
+                            {pair.left.label}
+                          </th>
+                        )}
+                        <td>{pair.right.label}</td>
+                        <td className="pair-status-column">
+                          <span className={`pair-status ${pair.isNew ? "is-new" : "is-existing"}`}>
+                            {pair.isNew ? "新增" : "已有"}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              {hiddenPairCount > 0 && (
+                <p className="pair-preview-limit">
+                  仅展示前 {PREVIEW_ROW_LIMIT} 组，另有 {hiddenPairCount}{" "}
+                  组；生成时会写入全部缺失组合
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="pair-preview-empty">
+              {calculating
+                ? "正在汇总并去重…"
+                : preview
+                  ? "至少需要 2 个不同的值"
+                  : "完成字段设置后会在这里实时显示组合"}
+            </p>
+          )}
+        </section>
+      </div>
 
       <footer className="flat-actions">
         <div
